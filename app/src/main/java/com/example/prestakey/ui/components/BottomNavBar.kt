@@ -1,7 +1,6 @@
 package com.example.prestakey.ui.components
 
 import androidx.compose.foundation.background
-import androidx.compose.foundation.clickable
 import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.Column
@@ -34,56 +33,46 @@ import com.example.prestakey.ui.theme.TextSecondary
 
 /**
  * Barra inferior con las 4 secciones (Llaves, Préstamos, NFC, Incidencias).
- * Marca cuál está seleccionada (1 a 4) y notifica la navegación mediante [onNavigate].
+ * Es un mockup estático: solo marca cuál está seleccionada (1 a 4), no navega.
  */
 @Composable
-fun BottomNavBar(seleccionada: Int, onNavigate: (Int) -> Unit = {}) {
+fun BottomNavBar(seleccionada: Int) {
     BottomAppBar(containerColor = PrimaryBlueLight) {
         BottomNavItem(
             icono = Icons.Default.Lock,
             texto = stringResource(R.string.nav_keys),
             seleccionado = seleccionada == 1,
-            modifier = Modifier.weight(1f),
-            onClick = { onNavigate(1) }
+            modifier = Modifier.weight(1f)
         )
         BottomNavItem(
             icono = Icons.Default.DateRange,
             texto = stringResource(R.string.nav_loans),
             seleccionado = seleccionada == 2,
-            modifier = Modifier.weight(1f),
-            onClick = { onNavigate(2) }
+            modifier = Modifier.weight(1f)
         )
         BottomNavItem(
             icono = Icons.Default.Phone,
             texto = stringResource(R.string.nav_nfc),
             seleccionado = seleccionada == 3,
-            modifier = Modifier.weight(1f),
-            onClick = { onNavigate(3) }
+            modifier = Modifier.weight(1f)
         )
         BottomNavItem(
             icono = Icons.Default.Warning,
             texto = stringResource(R.string.nav_incidents),
             seleccionado = seleccionada == 4,
-            modifier = Modifier.weight(1f),
-            onClick = { onNavigate(4) }
+            modifier = Modifier.weight(1f)
         )
     }
 }
 
 /** Un botón de la barra inferior: icono (con fondo si está seleccionado) y texto. */
 @Composable
-fun BottomNavItem(
-    icono: ImageVector,
-    texto: String,
-    seleccionado: Boolean,
-    modifier: Modifier = Modifier,
-    onClick: () -> Unit = {}
-) {
+fun BottomNavItem(icono: ImageVector, texto: String, seleccionado: Boolean, modifier: Modifier) {
     val fondo = if (seleccionado) SelectedBlue else Color.Transparent
     val color = if (seleccionado) PrimaryBlueDark else TextSecondary
 
     Column(
-        modifier = modifier.clickable { onClick() },
+        modifier = modifier,
         horizontalAlignment = Alignment.CenterHorizontally,
         verticalArrangement = Arrangement.Center
     ) {

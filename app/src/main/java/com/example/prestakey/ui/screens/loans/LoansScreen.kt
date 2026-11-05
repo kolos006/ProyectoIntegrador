@@ -53,13 +53,10 @@ import com.example.prestakey.ui.theme.TextMuted
  * Dos tarjetas de préstamo con su botón "Devolver" (mockup estático).
  */
 @Composable
-fun LoansScreen(
-    onNavigate: (Int) -> Unit = {},
-    onLogout: () -> Unit = {}
-) {
+fun LoansScreen() {
     Scaffold(
-        topBar = { UtadTopBar(titulo = stringResource(R.string.loans_topbar_title), onLogout = onLogout) },
-        bottomBar = { BottomNavBar(seleccionada = 2, onNavigate = onNavigate) }
+        topBar = { UtadTopBar(titulo = stringResource(R.string.loans_topbar_title)) },
+        bottomBar = { BottomNavBar(seleccionada = 2) }
     ) { valoresDeRelleno ->
         LazyColumn(
             modifier = Modifier

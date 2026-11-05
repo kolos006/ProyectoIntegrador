@@ -8,7 +8,7 @@ import androidx.activity.ComponentActivity
 import androidx.activity.compose.setContent
 import androidx.activity.enableEdgeToEdge
 import androidx.lifecycle.ViewModelProvider
-import com.example.prestakey.ui.navigation.AppNavigation
+import com.example.prestakey.ui.screens.nfc.NfcScreen
 import com.example.prestakey.ui.screens.nfc.NfcViewModel
 import com.example.prestakey.ui.theme.PrestaKeyTheme
 
@@ -28,7 +28,7 @@ class MainActivity : ComponentActivity() {
 
         setContent {
             PrestaKeyTheme {
-                AppNavigation()
+                NfcScreen(viewModel = nfcViewModel)
             }
         }
     }

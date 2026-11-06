@@ -1,0 +1,24 @@
+<vector xmlns:android="http://schemas.android.com/apk/res/android"
+    android:width="48dp"
+    android:height="48dp"
+    android:viewportWidth="24"
+    android:viewportHeight="24">
+
+    <!-- Contorno de la llave -->
+    <path
+        android:strokeColor="#29559B"
+        android:strokeWidth="1.8"
+        android:strokeLineCap="round"
+        android:strokeLineJoin="round"
+        android:fillColor="#00000000"
+        android:pathData="M21.75,8.25 a6,6 0 0,1 -7.029,5.912 c-0.563,-0.097 -1.159,0.026 -1.563,0.43 L10.5,17.25 H8.25 v2.25 H6 v2.25 H2.25 v-2.818 c0,-0.597 0.237,-1.17 0.659,-1.591 l6.499,-6.499 c0.404,-0.404 0.527,-1 0.43,-1.563 A6,6 0 1,1 21.75,8.25 z" />
+
+    <!-- Orificio circular central de la cabeza -->
+    <path
+        android:strokeColor="#29559B"
+        android:strokeWidth="1.8"
+        android:strokeLineCap="round"
+        android:strokeLineJoin="round"
+        android:fillColor="#00000000"
+        android:pathData="M15.75,6.25 a2,2 0 1,0 0,4 a2,2 0 1,0 0,-4 z" />
+</vector>

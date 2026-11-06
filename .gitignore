@@ -1,0 +1,47 @@
+# ==========================================
+# 1. Compilación y Cachés de Gradle
+# ==========================================
+.gradle/
+build/
+app/build/
+*.apk
+*.aab
+
+# ==========================================
+# 2. Configuración de Android Studio e IntelliJ
+# (La fuente principal de conflictos entre compañeros)
+# ==========================================
+.idea/
+*.iml
+.kotlin/
+
+# Si algún compañero insiste en no ignorar .idea completa, al menos ignorar esto:
+# .idea/workspace.xml
+# .idea/deviceManager.xml
+# .idea/deploymentTargetSelector.xml
+# .idea/material_theme_*.xml
+# .idea/caches/
+# .idea/libraries/
+
+# ==========================================
+# 3. Propiedades Locales de tu PC (¡MUY IMPORTANTE!)
+# (Contiene tu ruta C:\Users\yodie\... y rompería el build de tus compis)
+# ==========================================
+local.properties
+/local.properties
+
+# ==========================================
+# 4. Seguridad y Claves de Firma
+# ==========================================
+*.jks
+*.keystore
+
+# ==========================================
+# 5. Archivos del Sistema Operativo
+# ==========================================
+.DS_Store
+Thumbs.db
+desktop.ini
+captures/
+.externalNativeBuild
+.cxx

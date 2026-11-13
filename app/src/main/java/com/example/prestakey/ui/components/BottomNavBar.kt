@@ -10,7 +10,6 @@ import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.filled.DateRange
 import androidx.compose.material.icons.filled.Lock
-import androidx.compose.material.icons.filled.Phone
 import androidx.compose.material.icons.filled.Warning
 import androidx.compose.material3.BottomAppBar
 import androidx.compose.material3.Icon
@@ -20,7 +19,10 @@ import androidx.compose.runtime.Composable
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.graphics.Color
+import androidx.compose.ui.graphics.painter.Painter
 import androidx.compose.ui.graphics.vector.ImageVector
+import androidx.compose.ui.graphics.vector.rememberVectorPainter
+import androidx.compose.ui.res.painterResource
 import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.dp
@@ -51,7 +53,7 @@ fun BottomNavBar(seleccionada: Int) {
             modifier = Modifier.weight(1f)
         )
         BottomNavItem(
-            icono = Icons.Default.Phone,
+            icono = painterResource(id = R.drawable.ic_nav_nfc),
             texto = stringResource(R.string.nav_nfc),
             seleccionado = seleccionada == 3,
             modifier = Modifier.weight(1f)
@@ -68,6 +70,17 @@ fun BottomNavBar(seleccionada: Int) {
 /** Un botón de la barra inferior: icono (con fondo si está seleccionado) y texto. */
 @Composable
 fun BottomNavItem(icono: ImageVector, texto: String, seleccionado: Boolean, modifier: Modifier) {
+    BottomNavItem(
+        icono = rememberVectorPainter(icono),
+        texto = texto,
+        seleccionado = seleccionado,
+        modifier = modifier
+    )
+}
+
+/** Un botón de la barra inferior usando un [Painter] personalizado. */
+@Composable
+fun BottomNavItem(icono: Painter, texto: String, seleccionado: Boolean, modifier: Modifier) {
     val fondo = if (seleccionado) SelectedBlue else Color.Transparent
     val color = if (seleccionado) PrimaryBlueDark else TextSecondary
 
@@ -82,7 +95,7 @@ fun BottomNavItem(icono: ImageVector, texto: String, seleccionado: Boolean, modi
                 .padding(horizontal = 18.dp, vertical = 4.dp)
         ) {
             Icon(
-                imageVector = icono,
+                painter = icono,
                 contentDescription = null,
                 tint = color,
                 modifier = Modifier.size(22.dp)

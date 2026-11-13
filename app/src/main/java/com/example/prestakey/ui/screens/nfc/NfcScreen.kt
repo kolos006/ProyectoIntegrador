@@ -23,7 +23,6 @@ import androidx.compose.foundation.shape.CircleShape
 import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.filled.CheckCircle
-import androidx.compose.material.icons.filled.Phone
 import androidx.compose.material3.Card
 import androidx.compose.material3.CardDefaults
 import androidx.compose.material3.Icon
@@ -42,6 +41,7 @@ import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.platform.LocalInspectionMode
+import androidx.compose.ui.res.painterResource
 import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.tooling.preview.Preview
@@ -53,7 +53,6 @@ import com.example.prestakey.ui.components.BottomNavBar
 import com.example.prestakey.ui.components.UtadTopBar
 import com.example.prestakey.ui.theme.PrestaKeyTheme
 import com.example.prestakey.ui.theme.PrimaryBlue
-import com.example.prestakey.ui.theme.SelectedBlue
 import com.example.prestakey.ui.theme.StatusAvailableBg
 import com.example.prestakey.ui.theme.StatusAvailableText
 import com.example.prestakey.ui.theme.SurfaceCard
@@ -145,20 +144,14 @@ fun NfcScreen(
                 .padding(valoresDeRelleno)
         ) {
             // Icono central de lectura NFC
-            Box(
+            Icon(
+                painter = painterResource(id = R.drawable.ic_nfc_phone),
+                contentDescription = stringResource(R.string.nfc_title),
+                tint = PrimaryBlue,
                 modifier = Modifier
-                    .size(180.dp)
+                    .size(200.dp)
                     .align(Alignment.Center)
-                    .background(SelectedBlue, CircleShape),
-                contentAlignment = Alignment.Center
-            ) {
-                Icon(
-                    imageVector = Icons.Default.Phone,
-                    contentDescription = stringResource(R.string.nfc_title),
-                    tint = PrimaryBlue,
-                    modifier = Modifier.size(90.dp)
-                )
-            }
+            )
 
             // Pop up emergente arriba del todo (sin botón de cerrar, desaparece solo)
             AnimatedVisibility(

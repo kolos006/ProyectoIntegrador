@@ -31,9 +31,9 @@ class NfcViewModel : ViewModel() {
      * así que se ignora si ya estamos procesando una llave.
      */
     fun onTagDetected(tagId: String) {
-        if (_uiState.value.nfcTagScanned != null) return
+        if (_uiState.value.nfcTagScanned != null && _uiState.value.borrowerCode == null) return
         _uiState.update {
-            it.copy(nfcTagScanned = tagId, shouldLaunchScanner = true)
+            it.copy(nfcTagScanned = tagId, borrowerCode = null, shouldLaunchScanner = true)
         }
     }
 

@@ -1,7 +1,6 @@
 package com.example.prestakey.ui.components
 
 import androidx.compose.foundation.background
-import androidx.compose.foundation.clickable
 import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.Column
@@ -11,7 +10,6 @@ import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.filled.DateRange
 import androidx.compose.material.icons.filled.Lock
-import androidx.compose.material.icons.filled.Phone
 import androidx.compose.material.icons.filled.Warning
 import androidx.compose.material3.BottomAppBar
 import androidx.compose.material3.Icon
@@ -21,7 +19,10 @@ import androidx.compose.runtime.Composable
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.graphics.Color
+import androidx.compose.ui.graphics.painter.Painter
 import androidx.compose.ui.graphics.vector.ImageVector
+import androidx.compose.ui.graphics.vector.rememberVectorPainter
+import androidx.compose.ui.res.painterResource
 import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.dp
@@ -34,56 +35,57 @@ import com.example.prestakey.ui.theme.TextSecondary
 
 /**
  * Barra inferior con las 4 secciones (Llaves, Préstamos, NFC, Incidencias).
- * Marca cuál está seleccionada (1 a 4) y notifica la navegación mediante [onNavigate].
+ * Es un mockup estático: solo marca cuál está seleccionada (1 a 4), no navega.
  */
 @Composable
-fun BottomNavBar(seleccionada: Int, onNavigate: (Int) -> Unit = {}) {
+fun BottomNavBar(seleccionada: Int) {
     BottomAppBar(containerColor = PrimaryBlueLight) {
         BottomNavItem(
             icono = Icons.Default.Lock,
             texto = stringResource(R.string.nav_keys),
             seleccionado = seleccionada == 1,
-            modifier = Modifier.weight(1f),
-            onClick = { onNavigate(1) }
+            modifier = Modifier.weight(1f)
         )
         BottomNavItem(
             icono = Icons.Default.DateRange,
             texto = stringResource(R.string.nav_loans),
             seleccionado = seleccionada == 2,
-            modifier = Modifier.weight(1f),
-            onClick = { onNavigate(2) }
+            modifier = Modifier.weight(1f)
         )
         BottomNavItem(
-            icono = Icons.Default.Phone,
+            icono = painterResource(id = R.drawable.ic_nav_nfc),
             texto = stringResource(R.string.nav_nfc),
             seleccionado = seleccionada == 3,
-            modifier = Modifier.weight(1f),
-            onClick = { onNavigate(3) }
+            modifier = Modifier.weight(1f)
         )
         BottomNavItem(
             icono = Icons.Default.Warning,
             texto = stringResource(R.string.nav_incidents),
             seleccionado = seleccionada == 4,
-            modifier = Modifier.weight(1f),
-            onClick = { onNavigate(4) }
+            modifier = Modifier.weight(1f)
         )
     }
 }
 
 /** Un botón de la barra inferior: icono (con fondo si está seleccionado) y texto. */
 @Composable
-fun BottomNavItem(
-    icono: ImageVector,
-    texto: String,
-    seleccionado: Boolean,
-    modifier: Modifier = Modifier,
-    onClick: () -> Unit = {}
-) {
+fun BottomNavItem(icono: ImageVector, texto: String, seleccionado: Boolean, modifier: Modifier) {
+    BottomNavItem(
+        icono = rememberVectorPainter(icono),
+        texto = texto,
+        seleccionado = seleccionado,
+        modifier = modifier
+    )
+}
+
+/** Un botón de la barra inferior usando un [Painter] personalizado. */
+@Composable
+fun BottomNavItem(icono: Painter, texto: String, seleccionado: Boolean, modifier: Modifier) {
     val fondo = if (seleccionado) SelectedBlue else Color.Transparent
     val color = if (seleccionado) PrimaryBlueDark else TextSecondary
 
     Column(
-        modifier = modifier.clickable { onClick() },
+        modifier = modifier,
         horizontalAlignment = Alignment.CenterHorizontally,
         verticalArrangement = Arrangement.Center
     ) {
@@ -93,7 +95,7 @@ fun BottomNavItem(
                 .padding(horizontal = 18.dp, vertical = 4.dp)
         ) {
             Icon(
-                imageVector = icono,
+                painter = icono,
                 contentDescription = null,
                 tint = color,
                 modifier = Modifier.size(22.dp)

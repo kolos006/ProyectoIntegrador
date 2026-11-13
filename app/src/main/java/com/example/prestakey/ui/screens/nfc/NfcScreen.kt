@@ -1,208 +1,202 @@
 package com.example.prestakey.ui.screens.nfc
 
+import android.content.BroadcastReceiver
+import android.content.Context
+import android.content.Intent
+import android.content.IntentFilter
+import androidx.activity.ComponentActivity
+import androidx.compose.animation.AnimatedVisibility
+import androidx.compose.animation.fadeIn
+import androidx.compose.animation.fadeOut
+import androidx.compose.animation.slideInVertically
+import androidx.compose.animation.slideOutVertically
 import androidx.compose.foundation.background
-import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Box
-import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.Row
 import androidx.compose.foundation.layout.Spacer
 import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.foundation.layout.fillMaxWidth
-import androidx.compose.foundation.layout.height
 import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.layout.size
 import androidx.compose.foundation.layout.width
-import androidx.compose.foundation.lazy.LazyColumn
+import androidx.compose.foundation.shape.CircleShape
 import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.material.icons.Icons
-import androidx.compose.material.icons.filled.Phone
-import androidx.compose.material.icons.filled.Search
-import androidx.compose.material3.Button
+import androidx.compose.material.icons.filled.CheckCircle
+import androidx.compose.material3.Card
+import androidx.compose.material3.CardDefaults
 import androidx.compose.material3.Icon
 import androidx.compose.material3.MaterialTheme
-import androidx.compose.material3.OutlinedTextField
 import androidx.compose.material3.Scaffold
 import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
+import androidx.compose.runtime.DisposableEffect
+import androidx.compose.runtime.LaunchedEffect
+import androidx.compose.runtime.collectAsState
+import androidx.compose.runtime.getValue
+import androidx.compose.runtime.mutableStateOf
+import androidx.compose.runtime.remember
+import androidx.compose.runtime.setValue
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
+import androidx.compose.ui.platform.LocalContext
+import androidx.compose.ui.platform.LocalInspectionMode
+import androidx.compose.ui.res.painterResource
 import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.dp
+import androidx.core.content.ContextCompat
+import androidx.lifecycle.ViewModelProvider
 import com.example.prestakey.R
 import com.example.prestakey.ui.components.BottomNavBar
-import com.example.prestakey.ui.components.CodeBox
-import com.example.prestakey.ui.components.InfoNote
-import com.example.prestakey.ui.components.StatusBadge
 import com.example.prestakey.ui.components.UtadTopBar
 import com.example.prestakey.ui.theme.PrestaKeyTheme
 import com.example.prestakey.ui.theme.PrimaryBlue
-import com.example.prestakey.ui.theme.PrimaryBlueLight
-import com.example.prestakey.ui.theme.SelectedBlue
-import com.example.prestakey.ui.theme.StatusBorrowedBg
-import com.example.prestakey.ui.theme.StatusBorrowedText
+import com.example.prestakey.ui.theme.StatusAvailableBg
+import com.example.prestakey.ui.theme.StatusAvailableText
 import com.example.prestakey.ui.theme.SurfaceCard
-import com.example.prestakey.ui.theme.TextMuted
-import com.example.prestakey.ui.theme.TextSecondary
+import com.example.prestakey.ui.theme.TextPrimary
+import com.google.mlkit.vision.barcode.common.Barcode
+import com.google.mlkit.vision.codescanner.GmsBarcodeScannerOptions
+import com.google.mlkit.vision.codescanner.GmsBarcodeScanning
+import kotlinx.coroutines.delay
 
 /**
- * Pantalla 4: Búsqueda y lectura NFC.
- * La zona de lectura es solo un dibujo (placeholder), no usa el sensor NFC.
+ * Pantalla 4: Lectura NFC.
+ * 1. Se acerca la llave (tag NFC) al móvil.
+ * 2. Se abre el escáner y se lee el código de barras de la persona.
+ * 3. Aparece un pop up arriba del todo que desaparece solo a los 15-20 segundos:
+ *    "Esta llave ha sido prestada a X".
  */
 @Composable
 fun NfcScreen(
-    onNavigate: (Int) -> Unit = {},
-    onLogout: () -> Unit = {}
+    viewModel: NfcViewModel = run {
+        val context = LocalContext.current
+        val isPreview = LocalInspectionMode.current
+        if (!isPreview && context is ComponentActivity) {
+            ViewModelProvider(context)[NfcViewModel::class.java]
+        } else {
+            remember { NfcViewModel() }
+        }
+    }
 ) {
+    val context = LocalContext.current
+    val isPreview = LocalInspectionMode.current
+    val uiState by viewModel.uiState.collectAsState()
+
+    val scannerOptions = remember {
+        GmsBarcodeScannerOptions.Builder()
+            .setBarcodeFormats(Barcode.FORMAT_ALL_FORMATS)
+            .enableAutoZoom()
+            .build()
+    }
+
+    // Cuando el ViewModel ordena abrir el escáner (tras detectar el tag NFC)
+    LaunchedEffect(uiState.shouldLaunchScanner) {
+        if (!isPreview && uiState.shouldLaunchScanner) {
+            viewModel.onScannerLaunched()
+            GmsBarcodeScanning.getClient(context, scannerOptions)
+                .startScan()
+                .addOnSuccessListener { barcode -> viewModel.onCodeScanned(barcode.rawValue) }
+                .addOnCanceledListener { viewModel.onScanFailed() }
+                .addOnFailureListener { viewModel.onScanFailed() }
+        }
+    }
+
+    // Ocultar automáticamente el pop up superior tras 17 segundos (entre 15 y 20 s)
+    var ultimoCodigoLeido by remember { mutableStateOf("") }
+    LaunchedEffect(uiState.borrowerCode) {
+        val codigo = uiState.borrowerCode
+        if (codigo != null) {
+            ultimoCodigoLeido = codigo
+            delay(5_000L)
+            viewModel.resetScan()
+        }
+    }
+
+    // Escuchar el Broadcast de NFC que emite MainActivity
+    if (!isPreview) {
+        DisposableEffect(context) {
+            val receiver = object : BroadcastReceiver() {
+                override fun onReceive(context: Context?, intent: Intent?) {
+                    val tagId = intent?.getStringExtra("nfc_tag_id")
+                    if (!tagId.isNullOrEmpty()) viewModel.onTagDetected(tagId)
+                }
+            }
+            ContextCompat.registerReceiver(
+                context,
+                receiver,
+                IntentFilter("com.example.prestakey.NFC_SCANNED"),
+                ContextCompat.RECEIVER_NOT_EXPORTED
+            )
+            onDispose { context.unregisterReceiver(receiver) }
+        }
+    }
+
     Scaffold(
-        topBar = { UtadTopBar(titulo = stringResource(R.string.nfc_topbar_title), onLogout = onLogout) },
-        bottomBar = { BottomNavBar(seleccionada = 3, onNavigate = onNavigate) }
+        topBar = { UtadTopBar(titulo = stringResource(R.string.nfc_topbar_title)) },
+        bottomBar = { BottomNavBar(seleccionada = 3) }
     ) { valoresDeRelleno ->
-        LazyColumn(
+        Box(
             modifier = Modifier
                 .fillMaxSize()
                 .padding(valoresDeRelleno)
-                .padding(horizontal = 16.dp),
-            verticalArrangement = Arrangement.spacedBy(12.dp)
         ) {
-            // Título
-            item {
-                Column {
-                    Text(
-                        text = stringResource(R.string.nfc_title),
-                        style = MaterialTheme.typography.headlineMedium
-                    )
-                    Text(
-                        text = stringResource(R.string.nfc_subtitle),
-                        style = MaterialTheme.typography.bodyMedium,
-                        color = TextMuted
-                    )
-                }
-            }
+            // Icono central de lectura NFC
+            Icon(
+                painter = painterResource(id = R.drawable.ic_nfc_phone),
+                contentDescription = stringResource(R.string.nfc_title),
+                tint = PrimaryBlue,
+                modifier = Modifier
+                    .size(200.dp)
+                    .align(Alignment.Center)
+            )
 
-            // Zona de lectura (dibujo del móvil)
-            item {
-                Column(
-                    modifier = Modifier
-                        .fillMaxWidth()
-                        .background(PrimaryBlueLight, RoundedCornerShape(20.dp))
-                        .padding(24.dp),
-                    horizontalAlignment = Alignment.CenterHorizontally
+            // Pop up emergente arriba del todo (sin botón de cerrar, desaparece solo)
+            AnimatedVisibility(
+                visible = uiState.borrowerCode != null,
+                enter = slideInVertically(initialOffsetY = { -it }) + fadeIn(),
+                exit = slideOutVertically(targetOffsetY = { -it }) + fadeOut(),
+                modifier = Modifier
+                    .align(Alignment.TopCenter)
+                    .padding(horizontal = 16.dp, vertical = 12.dp)
+            ) {
+                Card(
+                    shape = RoundedCornerShape(16.dp),
+                    colors = CardDefaults.cardColors(containerColor = SurfaceCard),
+                    elevation = CardDefaults.cardElevation(defaultElevation = 6.dp),
+                    modifier = Modifier.fillMaxWidth()
                 ) {
-                    Box(
-                        modifier = Modifier
-                            .size(130.dp)
-                            .background(SelectedBlue, RoundedCornerShape(65.dp)),
-                        contentAlignment = Alignment.Center
-                    ) {
-                        Icon(
-                            imageVector = Icons.Default.Phone,
-                            contentDescription = null,
-                            tint = PrimaryBlue,
-                            modifier = Modifier.size(60.dp)
-                        )
-                    }
-                    Spacer(modifier = Modifier.height(16.dp))
-                    Text(
-                        text = stringResource(R.string.nfc_zone),
-                        style = MaterialTheme.typography.bodySmall,
-                        color = TextSecondary
-                    )
-                }
-            }
-
-            // Botón Lectura NFC
-            item {
-                Button(
-                    onClick = {},
-                    modifier = Modifier
-                        .fillMaxWidth()
-                        .height(52.dp)
-                ) {
-                    Icon(
-                        imageVector = Icons.Default.Phone,
-                        contentDescription = null,
-                        modifier = Modifier.size(18.dp)
-                    )
-                    Spacer(modifier = Modifier.width(8.dp))
-                    Text(
-                        text = stringResource(R.string.nfc_button_read),
-                        fontWeight = FontWeight.Bold
-                    )
-                }
-            }
-
-            // Vista previa de la llave leída
-            item {
-                Column(
-                    modifier = Modifier
-                        .fillMaxWidth()
-                        .background(SurfaceCard, RoundedCornerShape(16.dp))
-                        .padding(16.dp)
-                ) {
-                    Row(verticalAlignment = Alignment.CenterVertically) {
-                        Text(
-                            text = stringResource(R.string.nfc_preview_label),
-                            style = MaterialTheme.typography.labelSmall,
-                            color = TextMuted,
-                            modifier = Modifier.weight(1f)
-                        )
-                        StatusBadge(
-                            texto = stringResource(R.string.status_borrowed),
-                            fondo = StatusBorrowedBg,
-                            colorTexto = StatusBorrowedText
-                        )
-                    }
-                    Spacer(modifier = Modifier.height(12.dp))
-                    Row(verticalAlignment = Alignment.CenterVertically) {
-                        CodeBox(codigo = stringResource(R.string.code_b12))
-                        Spacer(modifier = Modifier.width(12.dp))
-                        Column {
-                            Text(
-                                text = stringResource(R.string.key_b12_name),
-                                style = MaterialTheme.typography.titleMedium,
-                                fontWeight = FontWeight.Bold
-                            )
-                            Text(
-                                text = stringResource(R.string.nfc_preview_tag),
-                                style = MaterialTheme.typography.bodySmall,
-                                color = TextMuted
-                            )
-                        }
-                    }
-                    Spacer(modifier = Modifier.height(12.dp))
-                    Text(
-                        text = stringResource(R.string.nfc_preview_loan),
-                        style = MaterialTheme.typography.bodySmall,
-                        color = TextSecondary
-                    )
-                }
-            }
-
-            // Búsqueda manual por código
-            item {
-                Column {
-                    Text(
-                        text = stringResource(R.string.nfc_search_label),
-                        style = MaterialTheme.typography.labelLarge,
-                        color = TextSecondary
-                    )
-                    Spacer(modifier = Modifier.height(6.dp))
-                    OutlinedTextField(
-                        value = stringResource(R.string.code_b12),
-                        onValueChange = {},
-                        trailingIcon = { Icon(Icons.Default.Search, contentDescription = null) },
-                        shape = RoundedCornerShape(12.dp),
+                    Row(
                         modifier = Modifier
                             .fillMaxWidth()
-                            .background(SurfaceCard, RoundedCornerShape(12.dp))
-                    )
+                            .padding(16.dp),
+                        verticalAlignment = Alignment.CenterVertically
+                    ) {
+                        Box(
+                            modifier = Modifier
+                                .size(40.dp)
+                                .background(StatusAvailableBg, CircleShape),
+                            contentAlignment = Alignment.Center
+                        ) {
+                            Icon(
+                                imageVector = Icons.Default.CheckCircle,
+                                contentDescription = null,
+                                tint = StatusAvailableText,
+                                modifier = Modifier.size(24.dp)
+                            )
+                        }
+                        Spacer(modifier = Modifier.width(12.dp))
+                        Text(
+                            text = "Esta llave ha sido prestada a ${uiState.borrowerCode ?: ultimoCodigoLeido}",
+                            style = MaterialTheme.typography.bodyLarge,
+                            fontWeight = FontWeight.SemiBold,
+                            color = TextPrimary
+                        )
+                    }
                 }
             }
-
-            item { InfoNote(texto = stringResource(R.string.nfc_note)) }
-            item { Spacer(modifier = Modifier.height(8.dp)) }
         }
     }
 }

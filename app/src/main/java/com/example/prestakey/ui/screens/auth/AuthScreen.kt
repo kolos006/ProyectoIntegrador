@@ -49,7 +49,7 @@ import com.example.prestakey.ui.theme.TextSecondary
  * Mockup estático: los campos muestran datos de ejemplo y el botón no hace nada.
  */
 @Composable
-fun AuthScreen(onLoginSuccess: () -> Unit = {}) {
+fun AuthScreen() {
     Scaffold { valoresDeRelleno ->
         LazyColumn(
             modifier = Modifier
@@ -144,7 +144,7 @@ fun AuthScreen(onLoginSuccess: () -> Unit = {}) {
             // Botón Acceder
             item {
                 Button(
-                    onClick = onLoginSuccess,
+                    onClick = {},
                     modifier = Modifier
                         .fillMaxWidth()
                         .height(52.dp)

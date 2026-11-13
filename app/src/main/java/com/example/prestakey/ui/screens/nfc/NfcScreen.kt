@@ -10,6 +10,7 @@ import androidx.compose.animation.fadeIn
 import androidx.compose.animation.fadeOut
 import androidx.compose.animation.slideInVertically
 import androidx.compose.animation.slideOutVertically
+import androidx.compose.foundation.Image
 import androidx.compose.foundation.background
 import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.Row
@@ -52,7 +53,6 @@ import com.example.prestakey.R
 import com.example.prestakey.ui.components.BottomNavBar
 import com.example.prestakey.ui.components.UtadTopBar
 import com.example.prestakey.ui.theme.PrestaKeyTheme
-import com.example.prestakey.ui.theme.PrimaryBlue
 import com.example.prestakey.ui.theme.StatusAvailableBg
 import com.example.prestakey.ui.theme.StatusAvailableText
 import com.example.prestakey.ui.theme.SurfaceCard
@@ -144,10 +144,9 @@ fun NfcScreen(
                 .padding(valoresDeRelleno)
         ) {
             // Icono central de lectura NFC
-            Icon(
+            Image(
                 painter = painterResource(id = R.drawable.ic_nfc_phone),
                 contentDescription = stringResource(R.string.nfc_title),
-                tint = PrimaryBlue,
                 modifier = Modifier
                     .size(200.dp)
                     .align(Alignment.Center)

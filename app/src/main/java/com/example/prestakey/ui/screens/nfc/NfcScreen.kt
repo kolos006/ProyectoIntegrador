@@ -111,7 +111,7 @@ fun NfcScreen(
         val codigo = uiState.borrowerCode
         if (codigo != null) {
             ultimoCodigoLeido = codigo
-            delay(17_000L)
+            delay(5_000L)
             viewModel.resetScan()
         }
     }

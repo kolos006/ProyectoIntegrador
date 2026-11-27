@@ -1,6 +1,7 @@
 package com.example.prestakey.ui.components
 
 import androidx.compose.foundation.background
+import androidx.compose.foundation.clickable
 import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.Row
@@ -9,12 +10,18 @@ import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.layout.size
 import androidx.compose.foundation.layout.width
 import androidx.compose.foundation.shape.RoundedCornerShape
+import androidx.compose.material3.DropdownMenu
+import androidx.compose.material3.DropdownMenuItem
 import androidx.compose.material3.ExperimentalMaterial3Api
 import androidx.compose.material3.Icon
 import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.Text
 import androidx.compose.material3.TopAppBar
 import androidx.compose.runtime.Composable
+import androidx.compose.runtime.getValue
+import androidx.compose.runtime.mutableStateOf
+import androidx.compose.runtime.remember
+import androidx.compose.runtime.setValue
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.graphics.Color
@@ -36,7 +43,7 @@ import com.example.prestakey.ui.theme.TextMuted
  */
 @OptIn(ExperimentalMaterial3Api::class)
 @Composable
-fun UtadTopBar(titulo: String) {
+fun UtadTopBar(titulo: String, onLogout: () -> Unit = {}) {
     TopAppBar(
         title = {
             Row(verticalAlignment = Alignment.CenterVertically) {
@@ -69,20 +76,37 @@ fun UtadTopBar(titulo: String) {
             }
         },
         actions = {
-            // Avatar con las iniciales del usuario
-            Box(
-                modifier = Modifier
-                    .padding(end = 12.dp)
-                    .size(40.dp)
-                    .background(SelectedBlue, RoundedCornerShape(20.dp)),
-                contentAlignment = Alignment.Center
-            ) {
-                Text(
-                    text = stringResource(R.string.user_initials),
-                    style = MaterialTheme.typography.labelMedium,
-                    fontWeight = FontWeight.Bold,
-                    color = PrimaryBlueDark
-                )
+            var menuAbierto by remember { mutableStateOf(false) }
+
+            // Avatar con las iniciales del usuario y menú desplegable
+            Box(modifier = Modifier.padding(end = 12.dp)) {
+                Box(
+                    modifier = Modifier
+                        .size(40.dp)
+                        .background(SelectedBlue, RoundedCornerShape(20.dp))
+                        .clickable { menuAbierto = true },
+                    contentAlignment = Alignment.Center
+                ) {
+                    Text(
+                        text = stringResource(R.string.user_initials),
+                        style = MaterialTheme.typography.labelMedium,
+                        fontWeight = FontWeight.Bold,
+                        color = PrimaryBlueDark
+                    )
+                }
+
+                DropdownMenu(
+                    expanded = menuAbierto,
+                    onDismissRequest = { menuAbierto = false }
+                ) {
+                    DropdownMenuItem(
+                        text = { Text(text = stringResource(R.string.action_logout)) },
+                        onClick = {
+                            menuAbierto = false
+                            onLogout()
+                        }
+                    )
+                }
             }
         }
     )

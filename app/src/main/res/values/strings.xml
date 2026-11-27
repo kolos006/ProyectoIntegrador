@@ -8,6 +8,7 @@
     <string name="cd_logo">Logotipo de PrestaKey U-Tad</string>
     <string name="cd_key">Llave</string>
     <string name="cd_info">Información</string>
+    <string name="action_logout">Cerrar Sesión</string>
 
     <!-- Barra inferior -->
     <string name="nav_keys">Llaves</string>

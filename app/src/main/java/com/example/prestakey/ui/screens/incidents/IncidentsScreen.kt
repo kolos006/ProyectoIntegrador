@@ -52,10 +52,13 @@ import com.example.prestakey.ui.theme.TextSecondary
  * Formulario con datos de ejemplo; el botón "Enviar reporte" no envía nada.
  */
 @Composable
-fun IncidentsScreen() {
+fun IncidentsScreen(
+    onNavigate: (Int) -> Unit = {},
+    onLogout: () -> Unit = {}
+) {
     Scaffold(
-        topBar = { UtadTopBar(titulo = stringResource(R.string.incidents_topbar_title)) },
-        bottomBar = { BottomNavBar(seleccionada = 4) }
+        topBar = { UtadTopBar(titulo = stringResource(R.string.incidents_topbar_title), onLogout = onLogout) },
+        bottomBar = { BottomNavBar(seleccionada = 4, onNavigate = onNavigate) }
     ) { valoresDeRelleno ->
         LazyColumn(
             modifier = Modifier

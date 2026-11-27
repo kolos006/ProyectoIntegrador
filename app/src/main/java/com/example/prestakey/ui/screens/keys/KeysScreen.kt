@@ -51,10 +51,13 @@ import com.example.prestakey.ui.theme.TextMuted
  * Contadores, buscador, filtros por estado y rejilla de tarjetas de llaves (mockup estático).
  */
 @Composable
-fun KeysScreen() {
+fun KeysScreen(
+    onNavigate: (Int) -> Unit = {},
+    onLogout: () -> Unit = {}
+) {
     Scaffold(
-        topBar = { UtadTopBar(titulo = stringResource(R.string.keys_topbar_title)) },
-        bottomBar = { BottomNavBar(seleccionada = 1) }
+        topBar = { UtadTopBar(titulo = stringResource(R.string.keys_topbar_title), onLogout = onLogout) },
+        bottomBar = { BottomNavBar(seleccionada = 1, onNavigate = onNavigate) }
     ) { valoresDeRelleno ->
         LazyColumn(
             modifier = Modifier
